@@ -5,11 +5,23 @@ query A{
     description
     createdAt
     url
+    postedBy {
+      id
+    }
+    likes{
+      id
+      user{
+        username
+      }
+      track{
+        title
+      }
+    }
   }
 }
 
 mutation B{
-  createTrack(title:"Track 3",description:"Track 3 description",url:"https://track3.com"){
+  createTrack(title:"Track 4",description:"Track 4 description",url:"https://track4.com"){
     track{
       id
       title
@@ -45,5 +57,40 @@ query E{
 mutation F{
   tokenAuth(username:"Sai",password:"shirdisai"){
     token
+  }
+}
+
+mutation G{
+  deleteTrack(trackId:4){
+    trackId
+  }
+}
+
+mutation H{
+  updateTrack(trackId:4,title:"Track 5",description:"Track 5 description",url:"https://track5.com"){
+    track {
+      id
+    }
+  }
+}
+
+mutation I{
+  createLike(trackId:4){
+    track{
+      id
+      title
+    }
+  }
+}
+
+query J{
+  likes {
+    id
+    user{
+      username
+    }
+    track{
+      title
+    }
   }
 }
