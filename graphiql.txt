@@ -1,0 +1,49 @@
+query A{
+  tracks{
+    id
+    title
+    description
+    createdAt
+    url
+  }
+}
+
+mutation B{
+  createTrack(title:"Track 3",description:"Track 3 description",url:"https://track3.com"){
+    track{
+      id
+      title
+      url
+    }
+  }
+}
+
+mutation C{
+  createUser(username:"Sai",email:"sai@gmail.com",password:"shirdisai"){
+   user{
+    id
+    username
+    password
+    email
+    dateJoined
+  }
+  }
+}
+
+query D{
+  user(id:2){
+    username
+  }
+}
+
+query E{
+  me{
+    id
+  }
+}
+
+mutation F{
+  tokenAuth(username:"Sai",password:"shirdisai"){
+    token
+  }
+}
