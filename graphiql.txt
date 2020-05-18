@@ -1,5 +1,5 @@
 query A{
-  tracks{
+  tracks(search:"sai"){
     id
     title
     description
@@ -21,7 +21,7 @@ query A{
 }
 
 mutation B{
-  createTrack(title:"Track 4",description:"Track 4 description",url:"https://track4.com"){
+  createTrack(title:"Track 5",description:"Track 5 description",url:"https://track5.com"){
     track{
       id
       title
@@ -61,7 +61,7 @@ mutation F{
 }
 
 mutation G{
-  deleteTrack(trackId:4){
+  deleteTrack(trackId:6){
     trackId
   }
 }

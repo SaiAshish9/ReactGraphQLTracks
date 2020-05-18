@@ -2,6 +2,10 @@ import graphene
 
 from graphene_django import DjangoObjectType
 
+from django.db.models import Q
+# multiple filters
+from graphql import GraphQLError
+
 from .models import Track,Like
 
 from users.schema import UserType
@@ -15,14 +19,25 @@ class LikeType(DjangoObjectType):
         model = Like
 
 class Query(graphene.ObjectType):
-    tracks=graphene.List(TrackType)
+    tracks=graphene.List(TrackType,search=graphene.String())
     likes=graphene.List(LikeType)
 
     def resolve_likes(self,info):
         return Like.objects.all() 
 
-    def resolve_tracks(self,info):
+    def resolve_tracks(self,info,search=None):
+        if search:
+            filter= (
+                Q(title__icontains=search)|
+                Q(description__icontains=search)|
+                Q(url__icontains=search)|
+                Q(posted_by__username__icontains=search)
+            )
+            return Track.objects.filter(filter)
         return Track.objects.all()
+
+# startswith contains gt exact iexact match methods
+
 
 class CreateTrack(graphene.Mutation):
     track=graphene.Field(TrackType)
@@ -36,7 +51,9 @@ class CreateTrack(graphene.Mutation):
         # kwargs.get('title')
         user=info.context.user 
         if user.is_anonymous:
-            raise Exception(" Not Authenticated ")
+            # raise Exception(" Not Authenticated ")
+            raise GraphQLError('Not Authenticated')
+
         track=Track(title=title,description=description,url=url,posted_by=user)
         track.save()
         return CreateTrack(track=track)
@@ -54,7 +71,7 @@ class DeleteTrack(graphene.Mutation):
         track=Track.objects.get(id=track_id)
 
         if track.posted_by != user:
-            raise Exception('Not Authorized to do so')
+            raise GraphQLError('Not Authorized to do so')
 
         track.delete()
 
@@ -74,7 +91,7 @@ class UpdateTrack(graphene.Mutation):
         user=info.context.user 
         track=Track.objects.get(id=track_id)
         if track.posted_by != user:
-            raise Exception(" Not Authorized ")
+            raise GraphQLError(" Not Authorized ")
         
         track.title = title
         track.description = description
@@ -95,12 +112,12 @@ class CreateLike(graphene.Mutation):
         user=info.context.user
 
         if user.is_anonymous:
-            raise Exception('Not Authenticated')
+            raise GraphQLError('Not Authenticated')
 
         track=Track.objects.get(id=track_id)
 
         if not track:
-            raise Exception('Not found')
+            raise GraphQLError('Not found')
 
         Like.objects.create(
             user=user,
